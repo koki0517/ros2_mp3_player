@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'mp3_player_node = mp3_player.player_node:main',
+            'audio_client = mp3_player.audio_client:main',
         ],
     },
 )

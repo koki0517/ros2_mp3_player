@@ -3,15 +3,14 @@
 
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String
+from mp3_player_msg.msg import SoundPlay
 import pygame
-import json
 
 class Mp3PlayerNode(Node):
     def __init__(self):
         super().__init__('mp3_player_node')
         self.subscription = self.create_subscription(
-            String,
+            SoundPlay,
             'audio_command',
             self.command_callback,
             10
@@ -22,23 +21,19 @@ class Mp3PlayerNode(Node):
         self.get_logger().info('mp3_player_node started.')
 
     def command_callback(self, msg):
-        try:
-            data = json.loads(msg.data)
-            cmd = data.get('command', '').upper()
-            if cmd == 'PLAY':
-                self.play_file(data.get('file_path', ''))
-            elif cmd == 'STOP':
-                self.stop()
-            elif cmd == 'PAUSE':
-                self.pause()
-            elif cmd == 'UNPAUSE':
-                self.unpause()
-            elif cmd == 'SET_VOLUME':
-                self.set_volume(data.get('volume', 1.0))
-            else:
-                self.get_logger().warn(f'Unknown command: {cmd}')
-        except json.JSONDecodeError:
-            self.get_logger().error('Invalid JSON format in message')
+        cmd = msg.mode
+        if cmd == SoundPlay.PLAY:
+            self.play_file(msg.file_path)
+        elif cmd == SoundPlay.STOP:
+            self.stop()
+        elif cmd == SoundPlay.PAUSE:
+            self.pause()
+        elif cmd == SoundPlay.UNPAUSE:
+            self.unpause()
+        elif cmd == SoundPlay.SET_VOLUME:
+            self.set_volume(msg.volume)
+        else:
+            self.get_logger().warn(f'Unknown command: {cmd}')
 
     def play_file(self, file_path):
         try:
